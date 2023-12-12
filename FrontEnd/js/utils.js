@@ -266,6 +266,7 @@ export function creatForm(modalContainer) {
     const iconPicture = createIcon(['fa-sharp', 'fa-solid', 'fa-image', 'picture', 'fa-xl']);
     const inputFormFile = createInputFormFile();
     inputFormFile.setAttribute('name', 'file');
+
     //label titre
     const labelTitre = createLabel('Titre', 'titre', 'label-titre');
     const divTitre = createDivWithClass('input-titre');
@@ -302,6 +303,13 @@ export function creatForm(modalContainer) {
     inputFormFile.addEventListener('change', () => {
         if (inputFormFile.files.length > 0) {
             console.log('success ' + inputFormFile.files[0].name);
+            const boutonAjouterPhoto = document.querySelector('.bouton-ajouter-photo');
+            const i = document.querySelector('.picture');
+            const span = document.querySelector('.text-caption');
+            boutonAjouterPhoto.style.display = 'none';
+            i.style.display = 'none';
+            span.style.display = 'none';
+
         } else {
             console.log('nope');
         }
@@ -344,14 +352,25 @@ export function creatForm(modalContainer) {
     divTitre.appendChild(labelTitre);
     divTitre.appendChild(inputTitre);
     form.appendChild(boutonValider);
+    const MAX_FILE_SIZE_MB = 4; // Taille maximale autorisée en Mo
+
     inputFormFile.addEventListener('change', (event) => {
         inputFormFile.style.display = 'none';
-
+    
         divInputFile.appendChild(imagePreview);
         const img = imagePreview.querySelector('img');
         const file = event.target.files[0];
         const inputElement = document.getElementById("image");
-        const files = event.target.files[0];
+        
+        // Vérifier la taille du fichier
+        if (file && file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+            // Afficher un message d'erreur
+            alert("L'image est trop grande. La taille maximale autorisée est de 4 Mo.");
+            // Réinitialiser l'input file
+            inputFormFile.value = "";
+            return;
+        }
+    
         if (file) {
             const reader = new FileReader();
             reader.addEventListener('load', (event) => {
@@ -359,10 +378,11 @@ export function creatForm(modalContainer) {
                 img.src = event.target.result;
                 img.style.display = 'block';
             });
-
+    
             reader.readAsDataURL(file);
         }
     });
+    
 
     const categorySelect = document.querySelector('select');
 fetch('http://localhost:5678/api/categories')
@@ -526,11 +546,7 @@ export function createBoutonAjouterPhoto(modalFormDiv, inputFormFile) {
             inputFiles[i].style.paddingBottom = '0px';
         }
         console.log(inputFiles);
-        const i = document.querySelector('.picture');
-        const span = document.querySelector('.text-caption');
-        boutonAjouterPhoto.style.display = 'none';
-        i.style.display = 'none';
-        span.style.display = 'none';
+       
     });
     return boutonAjouterPhoto;
 }
